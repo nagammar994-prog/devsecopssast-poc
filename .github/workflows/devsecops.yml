@@ -2,7 +2,7 @@ name: DevSecOps POC Pipeline
 
 on:
   push:
-    branches: [ "main", "security-lab" ]
+    branches: ["main", "security-lab"]
   pull_request:
 
 jobs:
@@ -10,45 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1️⃣ Checkout source code
-    - name: Checkout code
-      uses: actions/checkout@v4
+      # 1️⃣ Checkout source code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # 2️⃣ Secrets scanning (Gitleaks)
-    - name: Run Gitleaks
-      uses: gitleaks/gitleaks-action@v2
-      continue-on-error: false
+      # 2️⃣ Secrets scanning (Gitleaks)
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: false
 
-    # 3️⃣ SAST - Semgrep
-    - name: Run Semgrep
-      uses: returntocorp/semgrep-action@v1
-      with:
-      config: >-
-       p/security-audit
-       p/nodejs
+      # 3️⃣ SAST - Semgrep
+      - name: Run Semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/security-audit
+            p/nodejs
 
-    # 4️⃣ Setup Node (needed for npm audit)
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
+      # 4️⃣ Setup Node (needed for npm audit)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
 
-    # 5️⃣ Dependency scanning (SCA)
-    - name: Install dependencies
-      run: npm install
+      # 5️⃣ Dependency scanning (SCA)
+      - name: Install dependencies
+        run: npm install
 
-    - name: Run npm audit (fail on HIGH)
-      run: npm audit --audit-level=high
+      - name: Run npm audit (fail on HIGH)
+        run: npm audit --audit-level=high
 
-    # 6️⃣ Build Docker image
-    - name: Build Docker image
-      run: docker build -t devsecops-poc:latest .
+      # 6️⃣ Build Docker image
+      - name: Build Docker image
+        run: docker build -t devsecops-poc:latest .
 
-    # 7️⃣ Container image scan (Trivy)
-    - name: Trivy scan (fail on CRITICAL)
-      uses: aquasecurity/trivy-action@0.20.0
-      with:
-        image-ref: devsecops-poc:latest
-        severity: CRITICAL
-        exit-code: 1
-
+      # 7️⃣ Container image scan (Trivy)
+      - name: Trivy scan (fail on CRITICAL)
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: devsecops-poc:latest
+          severity: CRITICAL
+          exit-code: "1"
