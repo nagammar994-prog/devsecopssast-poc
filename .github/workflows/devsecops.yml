@@ -20,10 +20,12 @@ jobs:
       continue-on-error: false
 
     # 3️⃣ SAST - Semgrep
-    - name: Run Semgrep SAST
+    - name: Run Semgrep
       uses: returntocorp/semgrep-action@v1
       with:
-        config: .semgrep.yml
+      config: >-
+       p/security-audit
+       p/nodejs
 
     # 4️⃣ Setup Node (needed for npm audit)
     - name: Setup Node.js
